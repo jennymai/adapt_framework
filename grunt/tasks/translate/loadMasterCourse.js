@@ -3,13 +3,16 @@ var path = require("path");
 
 module.exports = function(grunt) {
 
+  var Helpers = require('../helpers')(grunt);
+
   grunt.registerTask("_loadMasterCourse", function() {
 
     global.translate.courseData = {};
 
     var targetLang = grunt.config("translate.targetLang");
     var masterLang = grunt.config("translate.masterLang");
-    var srcPath = grunt.option("outputdir") || grunt.config("sourcedir");
+    var buildConfig = Helpers.generateConfigData();
+    var srcPath = buildConfig.outputdir;
     var jsonext = grunt.config('jsonext');
 
     checkCourseExists();
