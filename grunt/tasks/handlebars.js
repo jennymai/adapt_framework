@@ -56,6 +56,7 @@ module.exports = function(grunt) {
     }
     // We only need to take any declaration to extract the global namespace.
     // Another option might be find the shortest declaration which is the global one.
+    // eslint-disable-next-line no-useless-escape
     var matches = declarations[0].match(/(this\[[^\[]+\])/g);
     return matches[0];
   };
@@ -120,13 +121,13 @@ module.exports = function(grunt) {
 
       // iterate files, processing partials and templates separately
       f.src.filter(function(filepath) {
-          // Warn on and remove invalid source files (if nonull was set).
-          if (!grunt.file.exists(filepath)) {
-            grunt.log.warn('Source file "' + filepath + '" not found.');
-            return false;
-          }
-          return true;
-        })
+        // Warn on and remove invalid source files (if nonull was set).
+        if (!grunt.file.exists(filepath)) {
+          grunt.log.warn(`Source file '${filepath}' not found.`);
+          return false;
+        }
+        return true;
+      })
         .forEach(function(filepath) {
           var src = processContent(grunt.file.read(filepath), filepath);
 
@@ -138,26 +139,28 @@ module.exports = function(grunt) {
 
             // if configured to, wrap template in Handlebars.template call
             if (options.wrapped === true) {
-              compiled = 'Handlebars.template(' + compiled + ')';
+              compiled = `Handlebars.template(${compiled})`;
             }
           } catch (e) {
             grunt.log.error(e);
-            grunt.fail.warn('Handlebars failed to compile ' + filepath + '.');
+            grunt.fail.warn(`Handlebars failed to compile ${filepath}.`);
           }
 
+          var stringifiedFileName;
           // register partial or add template to namespace
           if (partialsPathRegex.test(filepath) && isPartialRegex.test(_.last(filepath.split('/')))) {
             filename = processPartialName(filepath);
+            stringifiedFileName = JSON.stringify(filename);
             if (options.partialsUseNamespace === true) {
               nsInfo = getNamespaceInfo(filepath);
               if (nsInfo.declaration) {
                 declarations.push(nsInfo.declaration);
               }
-              partials[nsInfo.namespace + ':' + JSON.stringify(filename)] = ('Handlebars.registerPartial(' +
-                JSON.stringify(filename) + ', ' + nsInfo.namespace + '[' + JSON.stringify(filename) + '] = ' +
+              partials[`${nsInfo.namespace}:${stringifiedFileName}`] = ('Handlebars.registerPartial(' +
+                stringifiedFileName + ', ' + nsInfo.namespace + '[' + stringifiedFileName + '] = ' +
                 compiled + ');');
             } else {
-              partials[JSON.stringify(filename)] = ('Handlebars.registerPartial(' + JSON.stringify(filename) +
+              partials[stringifiedFileName] = ('Handlebars.registerPartial(' + stringifiedFileName +
                 ', ' + compiled + ');');
             }
           } else {
@@ -165,17 +168,18 @@ module.exports = function(grunt) {
               compiled = 'return ' + compiled;
             }
             filename = processName(filepath);
+            stringifiedFileName = JSON.stringify(filename);
             if (useNamespace) {
               nsInfo = getNamespaceInfo(filepath);
               if (nsInfo.declaration) {
                 declarations.push(nsInfo.declaration);
               }
-              templates[nsInfo.namespace + ':' + JSON.stringify(filename)] = (nsInfo.namespace + '[' +
-                JSON.stringify(filename) + '] = ' + compiled + ';');
+              templates[`${nsInfo.namespace}:${stringifiedFileName}`] = (nsInfo.namespace + '[' +
+                stringifiedFileName + '] = ' + compiled + ';');
             } else if (options.commonjs === true) {
-              templates[JSON.stringify(filename)] = compiled + ';';
+              templates[stringifiedFileName] = compiled + ';';
             } else {
-              templates[JSON.stringify(filename)] = compiled;
+              templates[stringifiedFileName] = compiled;
             }
           }
         });
@@ -186,11 +190,11 @@ module.exports = function(grunt) {
       } else {
         if (useNamespace) {
           if (options.node) {
-            output.unshift('Handlebars = glob.Handlebars || require(\'handlebars\');');
-            output.unshift('var glob = (\'undefined\' === typeof window) ? global : window,');
+            output.unshift(`Handlebars = glob.Handlebars || require('handlebars');`);
+            output.unshift(`var glob = ('undefined' === typeof window) ? global : window,`);
 
-            var nodeExport = 'if (typeof exports === \'object\' && exports) {';
-            nodeExport += 'module.exports = ' + nsInfo.namespace + ';}';
+            var nodeExport = `if (typeof exports === 'object' && exports) {`;
+            nodeExport += `module.exports = ${nsInfo.namespace};}`;
 
             output.push(nodeExport);
           }
@@ -200,11 +204,11 @@ module.exports = function(grunt) {
         if (options.amd) {
           // Wrap the file in an AMD define fn.
           if (typeof options.amd === 'boolean') {
-            output.unshift('define([\'handlebars\'], function(Handlebars) {');
+            output.unshift(`define(['handlebars'], function(Handlebars) {`);
           } else if (typeof options.amd === 'string') {
-            output.unshift('define([\'' + options.amd + '\'], function(Handlebars) {');
+            output.unshift(`define(['${options.amd}'], function(Handlebars) {`);
           } else if (typeof options.amd === 'function') {
-            output.unshift('define([\'' + options.amd(filename, ast, compiled) + '\'], function(Handlebars) {');
+            output.unshift(`define(['${options.amd(filename, ast, compiled)}'], function(Handlebars) {`);
           } else if (Array.isArray(options.amd)) {
             // convert options.amd to a string of dependencies for require([...])
             var amdString = '';
@@ -213,24 +217,24 @@ module.exports = function(grunt) {
                 amdString += ', ';
               }
 
-              amdString += '\'' + options.amd[i] + '\'';
+              amdString += `'${options.amd[i]}'`;
             }
 
             // Wrap the file in an AMD define fn.
-            output.unshift('define([' + amdString + '], function(Handlebars) {');
+            output.unshift(`define([${amdString}], function(Handlebars) {`);
           }
 
           if (useNamespace) {
             // Namespace has not been explicitly set to false; the AMD
             // wrapper will return the object containing the template.
-            output.push('return ' + extractGlobalNamespace(nsDeclarations) + ';');
+            output.push(`return ${extractGlobalNamespace(nsDeclarations)};`);
           }
           output.push('});');
         }
 
         if (options.commonjs) {
           if (useNamespace) {
-            output.push('return ' + nsInfo.namespace + ';');
+            output.push(`return ${nsInfo.namespace};`);
           }
           // Export the templates object for CommonJS environments.
           output.unshift('module.exports = function(Handlebars) {');
@@ -239,10 +243,10 @@ module.exports = function(grunt) {
 
         filesCount++;
         grunt.file.write(f.dest, output.join(grunt.util.normalizelf(options.separator)));
-        grunt.verbose.writeln('File ' + chalk.cyan(f.dest) + ' created.');
+        grunt.verbose.writeln(`File ${chalk.cyan(f.dest)} created.`);
       }
     });
 
-    grunt.log.ok(filesCount + ' ' + grunt.util.pluralize(filesCount, 'file/files') + ' created.');
+    grunt.log.ok(`${filesCount} ${grunt.util.pluralize(filesCount, 'file/files')} created.`);
   });
 };

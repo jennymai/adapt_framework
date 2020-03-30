@@ -8,27 +8,25 @@ module.exports = function(grunt) {
     var options = this.options({});
 
     var buildConfig = Helpers.generateConfigData();
-    var buildConfigPath = path.join(buildConfig.outputdir, "adapt/js/build.min.js");
+    var buildConfigPath = path.join(buildConfig.outputdir, 'adapt/js/build.min.js');
 
     var allowedProperties = options.allowedProperties || {};
 
+    const framework = Helpers.getFramework();
+
     // add package json
-    buildConfig.package = grunt.file.readJSON(path.join(buildConfig.root, 'package.json'));
+    buildConfig.package = framework.getPackageJSONFileItem().item;
     if (allowedProperties.package) {
       buildConfig.package = _.pick(buildConfig.package, allowedProperties.package);
     }
 
     // add bower json
-    buildConfig.plugins = [];
-    grunt.file.expand({
-      follow: true,
-      filter: options.filter
-    }, options.src).forEach(function(bowerJSONPath) {
-      var plugin = grunt.file.readJSON(bowerJSONPath);
+    const plugins = framework.getPlugins();
+    buildConfig.plugins = plugins.getAllPackageJSONFileItems().map(({ item }) => {
       if (allowedProperties.bower) {
-        plugin = _.pick(plugin, allowedProperties.bower);
+        item = _.pick(item, allowedProperties.bower);
       }
-      buildConfig.plugins.push(plugin);
+      return item;
     });
 
     // remove path specific variables

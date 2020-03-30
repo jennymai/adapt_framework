@@ -1,29 +1,28 @@
-var path = require('path');
-var fs = require('fs');
-var _ = require('underscore');
+const path = require('path');
 
 module.exports = function(grunt, options) {
 
-  var courseDir = path.join(options.outputdir, 'course');
+  const Helpers = require('../helpers')(grunt);
 
   var filterNullValues = function(obj) {
     // hack to fix bug https://github.com/adaptlearning/adapt_framework/issues/1867
+    var value;
 
     if (obj instanceof Array) {
       for (var i = obj.length - 1; i >= 0; i--) {
-        var value = obj[i];
+        value = obj[i];
         if (value === null) {
           obj.splice(i, 1);
-        } else if (typeof value === "object") {
+        } else if (typeof value === 'object') {
           obj[i] = filterNullValues(value);
         }
       }
-    } else if (typeof obj === "object") {
+    } else if (typeof obj === 'object') {
       for (var k in obj) {
-        var value = obj[k];
+        value = obj[k];
         if (value === null) {
           delete obj[k];
-        } else if (typeof value === "object") {
+        } else if (typeof value === 'object') {
           obj[k] = filterNullValues(value);
         }
       }
@@ -34,16 +33,13 @@ module.exports = function(grunt, options) {
   };
 
   var generatePatterns = function() {
-    var jsonext = grunt.config('jsonext');
-    var pathToConfig = path.join(courseDir, 'config.' + jsonext);
+    const framework = Helpers.getFramework();
+    const data = framework.getData();
 
     try {
-      // Verify that the configuration file exists.
-      fs.accessSync(pathToConfig);
-
-      var configJson = grunt.file.readJSON(pathToConfig);
-      var defaultLanguage = configJson._defaultLanguage || 'en';
-      var courseJson = grunt.file.readJSON(path.join(courseDir, defaultLanguage, 'course.' + jsonext));
+      const configJson = data.getConfigFileItem().item;
+      const defaultLanguage = configJson._defaultLanguage || 'en';
+      const courseJson = data.getLanguage(defaultLanguage).getCourseFileItem().item;
 
       // Backwards compatibility for courses missing 'description'
       if (!courseJson.hasOwnProperty('description')) {
@@ -58,7 +54,7 @@ module.exports = function(grunt, options) {
         };
       } else {
         // xAPI has been enabled, check if the activityID has been set.
-        if (configJson._xapi.hasOwnProperty('_activityID') && configJson._xapi._activityID == '') {
+        if (configJson._xapi.hasOwnProperty('_activityID') && configJson._xapi._activityID === '') {
           grunt.log.writeln('WARNING: xAPI activityID has not been set');
         }
       }
@@ -70,7 +66,7 @@ module.exports = function(grunt, options) {
         spoor._advancedSettings._manifestIdentifier = spoor._advancedSettings._manifestIdentifier || 'adapt_manifest';
       }
 
-      // Combine the course and config JSON so both can be passed to replace.  
+      // Combine the course and config JSON so both can be passed to replace.
       return {
         'course': filterNullValues(courseJson),
         'config': filterNullValues(configJson)
@@ -105,4 +101,4 @@ module.exports = function(grunt, options) {
       ]
     }
   };
-}
+};

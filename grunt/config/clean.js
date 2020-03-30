@@ -16,5 +16,10 @@ module.exports = {
       '<%= outputdir %>*',
       '!<%= outputdir %>course',
     ]
+  },
+  temp: {
+    src: [
+      '<%= tempdir %>'
+    ]
   }
-}
+};

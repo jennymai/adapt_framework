@@ -9,7 +9,6 @@ module.exports = function(grunt) {
       'check-json',
       diff?null:'clean:output',
       'schema-defaults',
-      'create-json-config',
       'tracking-insert',
       `server-build:compile${diff}`,
       diff?null:'clean:dist',

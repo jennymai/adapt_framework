@@ -8,7 +8,6 @@ module.exports = function(grunt) {
       'check-json',
       'json-prettify',
       'schema-defaults',
-      'create-json-config',
       'tracking-insert',
       `server-build:dev${diff}`,
       'watch'

@@ -1,10 +1,10 @@
 module.exports = function(grunt, options) {
 
-  var _ = require("underscore");
+  var _ = require('underscore');
 
   var getUnixPath = function(filepath) {
     // convert to unix style slashes
-    return filepath.replace(/\\/g, "/");
+    return filepath.replace(/\\/g, '/');
   };
 
   var collate = function(collateAtFolderName, destFolder, srcFileName) {
@@ -12,7 +12,7 @@ module.exports = function(grunt, options) {
     srcFileName = getUnixPath(srcFileName);
 
     // ignore if the srcFileName ends with the collateAtFolderName
-    var nameParts = srcFileName.split("/");
+    var nameParts = srcFileName.split('/');
     if (nameParts[nameParts.length - 1] === collateAtFolderName) {
       return destFolder;
     }
@@ -30,7 +30,7 @@ module.exports = function(grunt, options) {
           expand: true,
           src: ['<%= sourcedir %>core/assets/**'],
           dest: '<%= outputdir %>assets/',
-          rename: _.partial(collate, "assets")
+          rename: _.partial(collate, 'assets')
         }
       ]
     },
@@ -44,7 +44,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "assets")
+          rename: _.partial(collate, 'assets')
         }
       ]
     },
@@ -58,7 +58,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "fonts")
+          rename: _.partial(collate, 'fonts')
         }
       ]
     },
@@ -72,7 +72,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "assets")
+          rename: _.partial(collate, 'assets')
         }
       ]
     },
@@ -86,7 +86,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "fonts")
+          rename: _.partial(collate, 'fonts')
         }
       ]
     },
@@ -100,7 +100,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "assets")
+          rename: _.partial(collate, 'assets')
         }
       ]
     },
@@ -111,7 +111,7 @@ module.exports = function(grunt, options) {
           src: ['<%= sourcedir %>core/fonts/**'],
           dest: '<%= outputdir %>fonts/',
           filter: 'isFile',
-          rename: _.partial(collate, "fonts")
+          rename: _.partial(collate, 'fonts')
         }
       ]
     },
@@ -125,7 +125,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "fonts")
+          rename: _.partial(collate, 'fonts')
         }
       ]
     },
@@ -139,7 +139,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "assets")
+          rename: _.partial(collate, 'assets')
         }
       ]
     },
@@ -153,7 +153,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "fonts")
+          rename: _.partial(collate, 'fonts')
         }
       ]
     },
@@ -164,7 +164,7 @@ module.exports = function(grunt, options) {
           src: ['core/libraries/**/*'],
           cwd: '<%= sourcedir %>',
           dest: '<%= outputdir %>libraries/',
-          rename: _.partial(collate, "libraries")
+          rename: _.partial(collate, 'libraries')
         }
       ]
     },
@@ -179,7 +179,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "libraries")
+          rename: _.partial(collate, 'libraries')
         }
       ]
     },
@@ -190,7 +190,7 @@ module.exports = function(grunt, options) {
           src: ['core/required/**/*'],
           cwd: '<%= sourcedir %>',
           dest: '<%= outputdir %>',
-          rename: _.partial(collate, "required")
+          rename: _.partial(collate, 'required')
         }
       ]
     },
@@ -205,7 +205,7 @@ module.exports = function(grunt, options) {
             return grunt.config('helpers')
               .includedFilter(filepath);
           },
-          rename: _.partial(collate, "required")
+          rename: _.partial(collate, 'required')
         }
       ]
     }

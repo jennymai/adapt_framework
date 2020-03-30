@@ -18,11 +18,11 @@ module.exports = {
   },
   courseJson: {
     files: ['<%= outputdir %>course/**/*.<%= jsonext %>'],
-    tasks: ['jsonlint', 'check-json', 'schema-defaults', 'create-json-config', 'copy', 'replace']
+    tasks: ['jsonlint', 'check-json', 'schema-defaults', 'copy', 'replace']
   },
   js: {
     files: ['<%= sourcedir %>**/*.js'],
-    tasks: ['javascript:dev']
+    tasks: ['javascript:dev', 'babel', 'clean:temp']
   },
   componentsAssets: {
     files: ['<%= sourcedir %>components/**/assets/**'],
@@ -57,11 +57,11 @@ module.exports = {
     tasks: ['newer:copy:themeFonts']
   },
   libraries: {
-    files: ['<%= sourcedir %>core/libraries/**/*','<%= sourcedir %>*/*/libraries/**/*'],
+    files: ['<%= sourcedir %>core/libraries/**/*', '<%= sourcedir %>*/*/libraries/**/*'],
     tasks: ['newer:copy:libraries']
   },
   required: {
-    files: ['<%= sourcedir %>core/required/**/*','<%= sourcedir %>*/*/required/**/*'],
+    files: ['<%= sourcedir %>core/required/**/*', '<%= sourcedir %>*/*/required/**/*'],
     tasks: ['newer:copy:required']
   }
-}
+};
